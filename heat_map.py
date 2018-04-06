@@ -157,8 +157,8 @@ def main(args):
     logger.info('Minimum value of %s is %s', args.feature_name, min_value)
     logger.info('Maximum value of %s is %s', args.feature_name, max_value)
 
-    min_rescale_value = min_value if args.scale_min is None else args.scale_min
-    max_rescale_value = max_value if args.scale_max is None else args.scale_max
+    min_rescale_value = min_value if args.scale_min is None else float(args.scale_min)
+    max_rescale_value = max_value if args.scale_max is None else float(args.scale_max)
 
     logger.debug('Re-scaling and converting heatmap to 8-bit tiff')
     heat_map = heat_map.astype('float64')
@@ -197,8 +197,8 @@ def main(args):
     logger.debug('Generating heat map legend')
     fig = plt.figure(figsize=(1, 4))
     ax1 = fig.add_axes([0.05, 0.80, 0.4, 0.9])
-    norm = mpl.colors.Normalize(vmin=min_value,
-                                vmax=max_value)
+    norm = mpl.colors.Normalize(vmin=min_rescale_value,
+                                vmax=max_rescale_value)
     cb1 = mpl.colorbar.ColorbarBase(ax1, cmap=mpl.cm.viridis,
                                     norm=norm,
                                     orientation='vertical')
