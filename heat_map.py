@@ -80,7 +80,18 @@ def parse_arguments():
     parser.add_argument(
         '-e', '--experiment', metavar='EXPERIMENT',
         dest='experiment_name',
-        required=True, help='name of the experiment')
+        required=True, help='name of the experiment'
+    )
+    parser.add_argument(
+        '--scale_max', metavar='SCALE_MAX',
+        dest='scale_max', default=None,
+        required=False, help='maximum value on heatmap'
+    )
+    parser.add_argument(
+        '--scale_min', metavar='SCALE_MIN',
+        dest='scale_min', default=None,
+        required=False, help='minimum value on heatmap'
+    )
 
     return(parser.parse_args())
 
@@ -143,13 +154,16 @@ def main(args):
 
     min_value = min(non_border_cells.iteritems(), key=itemgetter(1))[1][0]
     max_value = max(non_border_cells.iteritems(), key=itemgetter(1))[1][0]
-    logger.info('Minimum value in heatmap is %s', min_value)
-    logger.info('Maximum value in heatmap is %s', max_value)
+    logger.info('Minimum value of %s is %s', args.feature_name, min_value)
+    logger.info('Maximum value of %s is %s', args.feature_name, max_value)
+
+    min_rescale_value = min_value if args.scale_min is None else args.scale_min
+    max_rescale_value = max_value if args.scale_max is None else args.scale_max
 
     logger.debug('Re-scaling and converting heatmap to 8-bit tiff')
     heat_map = heat_map.astype('float64')
-    heat_map -= min_value
-    heat_map /= max_value
+    heat_map -= min_rescale_value
+    heat_map /= max_rescale_value
     heat_map = mpl.cm.viridis(heat_map)  # RGBA
 
     logger.debug('Colouring border cells')
