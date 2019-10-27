@@ -49,7 +49,7 @@ def main(args):
 
     composite_filename = (
         os.path.splitext(
-            os.path.basename(args.segmentation)
+            os.path.basename(args.channel_image)
         )[0] + '_Overlay.png'
     )
 
