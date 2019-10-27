@@ -128,7 +128,8 @@ def main(args):
         plate_name=args.plate_name,
         well_name=args.well_name,
         well_pos_y=args.well_pos_y,
-        well_pos_x=args.well_pos_x
+        well_pos_x=args.well_pos_x,
+        align=True
     )
 
     logger.debug('Checking that feature exists')
@@ -161,9 +162,11 @@ def main(args):
     max_rescale_value = max_value if args.scale_max is None else float(args.scale_max)
 
     logger.debug('Re-scaling and converting heatmap to 8-bit tiff')
+    logger.info('Minimum rescale value of %s is %s', args.feature_name, min_rescale_value)
+    logger.info('Maximum rescale value of %s is %s', args.feature_name, max_rescale_value)
     heat_map = heat_map.astype('float64')
     heat_map -= min_rescale_value
-    heat_map /= max_rescale_value
+    heat_map /= (max_rescale_value - min_rescale_value)
     heat_map = mpl.cm.viridis(heat_map)  # RGBA
 
     logger.debug('Colouring border cells')
