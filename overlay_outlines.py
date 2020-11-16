@@ -1,6 +1,5 @@
 import os
 import argparse
-import imageio
 import mahotas as mh
 import numpy as np
 from PIL import Image
@@ -19,17 +18,26 @@ def parse_arguments():
         default=os.getcwd(),
         help='where to save the composite image'
     )
+    parser.add_argument(
+        '-t','--thin',
+        default=False,
+        action='store_true',
+        help='make the outlines thinner'
+    )
 
     return(parser.parse_args())
 
 
 def create_overlay_image_plot(
         channel_image, label_image,
-        color='rgb(255, 191, 0)', thickness=3):
+        color='rgb(255, 191, 0)', thin=False):
 
     # threshold label_image and generate outlines
     label_image = np.array(label_image)
-    outlines = mh.morph.dilate(mh.labeled.bwperim(label_image > 0)) * 255
+    if (thin):
+        outlines = mh.labeled.bwperim(label_image > 0) * 255
+    else:
+        outlines = mh.morph.dilate(mh.labeled.bwperim(label_image > 0)) * 255
     overlay = Image.fromarray(np.uint8(outlines))
     outlines_transparent = Image.new(
         mode='RGBA', size=outlines.shape[::-1], color=(0, 0, 0, 0)
@@ -53,7 +61,7 @@ def main(args):
         )[0] + '_Overlay.png'
     )
 
-    overlay_image = create_overlay_image_plot(channel_image,segmentation)
+    overlay_image = create_overlay_image_plot(channel_image,segmentation,thin=args.thin)
     overlay_image.save(os.path.join(args.output_dir,composite_filename))
 
 
